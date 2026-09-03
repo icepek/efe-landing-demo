@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Un único agente con memoria, voz, automatizaciones y herramientas conectadas para convertir tus ideas en trabajo terminado.">
+  <title>Efe — Toda tu IA, en un solo lugar</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #030509;
+      --panel: rgba(10, 17, 30, .72);
+      --line: rgba(104, 192, 255, .16);
+      --blue: #38b6ff;
+      --cyan: #79e7ff;
+      --ink: #f3f8ff;
+      --muted: #98a9bd;
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background:
+        radial-gradient(circle at 72% 12%, rgba(23, 122, 255, .18), transparent 25%),
+        radial-gradient(circle at 20% 60%, rgba(0, 218, 255, .08), transparent 29%),
+        linear-gradient(180deg, #050912 0%, #020408 45%, #060911 100%);
+    }
+    .grid {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      opacity: .2;
+      background-image:
+        linear-gradient(rgba(56,182,255,.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,182,255,.15) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, #000, transparent 82%);
+      transform: perspective(600px) rotateX(55deg) scale(1.5) translateY(-10%);
+      transform-origin: top center;
+      animation: gridMove 15s linear infinite;
+    }
+    .orb {
+      position: fixed;
+      width: 40vw;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(0, 149, 255, .13);
+      filter: blur(90px);
+      z-index: -1;
+      pointer-events: none;
+      animation: float 12s ease-in-out infinite alternate;
+    }
+    .orb.one { top: 8%; right: -18%; }
+    .orb.two { bottom: 8%; left: -22%; animation-delay: -5s; }
+    @keyframes gridMove { to { background-position: 0 64px, 64px 0; } }
+    @keyframes float { to { transform: translate3d(-8vw, 6vh, 0) scale(1.16); } }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(56,182,255,0); } }
+    @keyframes sweep { to { transform: translateX(180%); } }
+    @keyframes revealIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(3, 5, 9, .68);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(18px);
+    }
+    .nav-inner { height: 72px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; gap: 11px; align-items: center; font-weight: 760; letter-spacing: -.02em; }
+    .brand-mark {
+      width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px;
+      background: linear-gradient(140deg, rgba(56,182,255,.35), rgba(56,182,255,.06));
+      border: 1px solid rgba(121,231,255,.4); box-shadow: 0 0 28px rgba(56,182,255,.22);
+    }
+    .brand-mark span { color: var(--cyan); font-size: 18px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links span { color: var(--muted); font-size: 14px; }
+    .button {
+      position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      min-height: 48px; padding: 0 20px; border-radius: 13px; text-decoration: none; font-weight: 720;
+      color: #00101c; background: linear-gradient(120deg, #74ddff, var(--blue)); border: 0;
+      box-shadow: 0 13px 40px rgba(22,135,255,.25); overflow: hidden; transition: transform .2s, box-shadow .2s;
+    }
+    .button::after { content:""; position:absolute; inset:0; width:45%; transform:translateX(-140%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent); animation:sweep 4s ease-in-out infinite; }
+    .button.secondary { color: #dbeeff; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.13); box-shadow: none; }
+    .button.small { min-height: 40px; padding: 0 16px; font-size: 14px; }
+
+    .hero { min-height: 760px; padding: 110px 0 76px; display: grid; align-items: center; }
+    .hero-grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 72px; align-items: center; }
+    .eyebrow { display:inline-flex; gap:9px; align-items:center; color:#a7dfff; font-size:13px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; }
+    .dot { width:8px; height:8px; background:#63ddff; border-radius:50%; box-shadow:0 0 0 0 rgba(56,182,255,.5); animation:pulse 2s infinite; }
+    h1 { font-size: clamp(48px, 6.7vw, 86px); line-height: .97; letter-spacing: -.065em; margin: 26px 0; max-width: 800px; }
+    .gradient-text { color: transparent; background: linear-gradient(90deg, #fff 5%, #6edaff 58%, #208cff); -webkit-background-clip: text; background-clip: text; }
+    .hero p { color: #a8b7c9; font-size: clamp(18px, 2vw, 21px); max-width: 660px; margin: 0 0 34px; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; }
+    .micro { margin-top:22px; color:#70839b; font-size:13px; display:flex; align-items:center; gap:8px; }
+    .micro svg { color:#60d5ff; }
+
+    .agent-shell {
+      position:relative; padding:1px; border-radius:28px;
+      background: linear-gradient(140deg, rgba(121,231,255,.6), rgba(56,182,255,.03) 48%, rgba(56,182,255,.3));
+      box-shadow: 0 35px 110px rgba(0,75,160,.28);
+    }
+    .agent { position:relative; overflow:hidden; min-height:520px; padding:25px; border-radius:27px; background:rgba(5,9,16,.94); }
+    .agent::before { content:""; position:absolute; width:270px; height:270px; top:-140px; right:-80px; background:#0078ff; border-radius:50%; filter:blur(80px); opacity:.28; }
+    .agent-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; }
+    .agent-id { display:flex; align-items:center; gap:11px; }
+    .avatar { width:42px; height:42px; border:1px solid rgba(108,219,255,.5); border-radius:13px; display:grid; place-items:center; background:rgba(31,143,255,.13); }
+    .agent-id strong { display:block; font-size:14px; }
+    .agent-id small { color:#78dfff; font-size:11px; }
+    .status { color:#83e9be; font-size:11px; padding:7px 10px; border:1px solid rgba(90,226,167,.2); border-radius:99px; background:rgba(65,220,155,.05); }
+    .chat { display:grid; gap:13px; }
+    .msg { max-width:90%; padding:14px 16px; border-radius:17px; font-size:14px; color:#c4d2e2; background:#0c1421; border:1px solid rgba(255,255,255,.055); }
+    .msg.user { margin-left:auto; background:rgba(31,129,255,.16); border-color:rgba(56,182,255,.23); color:#ebf7ff; }
+    .work { margin-top:15px; padding:16px; border-radius:18px; background:rgba(255,255,255,.022); border:1px solid rgba(108,193,255,.13); }
+    .work-top { display:flex; align-items:center; justify-content:space-between; color:#8192a7; font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+    .progress { height:4px; background:#0d1724; margin:15px 0 17px; border-radius:5px; overflow:hidden; }
+    .progress span { display:block; width:76%; height:100%; background:linear-gradient(90deg,#197aff,#75e7ff); box-shadow:0 0 16px #38b6ff; }
+    .chips { display:flex; gap:7px; flex-wrap:wrap; }
+    .chip { padding:7px 9px; color:#a8c4da; font-size:10px; border-radius:8px; background:#0a111c; border:1px solid rgba(255,255,255,.07); }
+
+    section { padding: 110px 0; }
+    .section-label { color:var(--blue); text-transform:uppercase; letter-spacing:.15em; font-size:12px; font-weight:750; }
+    h2 { font-size:clamp(38px,5vw,64px); line-height:1.04; letter-spacing:-.05em; margin:18px 0 22px; max-width:780px; }
+    .lead { color:#8fa0b5; font-size:19px; max-width:700px; }
+    .pain-grid, .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:50px; }
+    .card {
+      position:relative; min-height:245px; padding:27px; border:1px solid var(--line); border-radius:var(--radius);
+      background:linear-gradient(150deg,rgba(13,23,39,.76),rgba(5,8,14,.86)); overflow:hidden;
+      transition:transform .25s,border-color .25s,background .25s;
+    }
+    .card:hover { transform:translateY(-5px); border-color:rgba(56,182,255,.38); background:linear-gradient(150deg,rgba(15,34,57,.85),rgba(5,8,14,.9)); }
+    .card::after { content:""; position:absolute; inset:auto -20% -55% 30%; height:160px; background:rgba(15,113,255,.11); filter:blur(45px); }
+    .icon { width:42px; height:42px; display:grid; place-items:center; border-radius:12px; color:#76e2ff; background:rgba(56,182,255,.08); border:1px solid rgba(56,182,255,.19); font-size:19px; }
+    .card h3 { margin:24px 0 10px; font-size:21px; letter-spacing:-.025em; }
+    .card p { color:#8395aa; margin:0; font-size:15px; }
+    .pain .card { min-height:218px; }
+    .pain .card h3 { color:#d8e4ef; }
+    .pain-number { position:absolute; right:22px; top:17px; color:rgba(95,193,255,.25); font-size:32px; font-weight:800; }
+
+    .statement { text-align:center; padding:140px 20px; }
+    .statement p { max-width:930px; margin:0 auto; font-size:clamp(36px,5vw,70px); line-height:1.08; letter-spacing:-.055em; font-weight:760; }
+    .statement span { color:#4b5f75; }
+
+    .flow { display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-top:55px; border:1px solid var(--line); border-radius:26px; overflow:hidden; background:rgba(8,13,23,.65); }
+    .step { padding:34px; min-height:240px; border-right:1px solid var(--line); }
+    .step:last-child { border-right:0; }
+    .step b { display:block; color:#5dccff; font-size:12px; letter-spacing:.15em; margin-bottom:48px; }
+    .step h3 { font-size:24px; margin:0 0 10px; }
+    .step p { color:#8395aa; margin:0; }
+
+    .connect {
+      display:grid; grid-template-columns:.95fr 1.05fr; gap:60px; align-items:center;
+      padding:64px; border:1px solid rgba(79,180,255,.2); border-radius:32px;
+      background:linear-gradient(125deg,rgba(10,23,41,.9),rgba(5,8,15,.8)); box-shadow:inset 0 1px rgba(255,255,255,.03);
+    }
+    .connect-cloud { position:relative; min-height:360px; display:grid; place-items:center; }
+    .core { position:relative; z-index:3; width:114px; aspect-ratio:1; display:grid; place-items:center; border-radius:30px; font-size:29px; font-weight:800; background:#07111e; border:1px solid #46c7ff; box-shadow:0 0 60px rgba(33,159,255,.34),inset 0 0 30px rgba(49,172,255,.1); }
+    .ring { position:absolute; border:1px solid rgba(72,191,255,.18); border-radius:50%; animation:spin 22s linear infinite; }
+    .ring.r1 { width:260px; height:260px; }
+    .ring.r2 { width:350px; height:350px; animation-direction:reverse; animation-duration:29s; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .tool { position:absolute; width:52px; height:52px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.12); border-radius:15px; background:#0b1421; color:#a9c9e2; font-size:11px; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+    .t1 { transform:translate(0,-132px); } .t2 { transform:translate(130px,-20px); } .t3 { transform:translate(80px,115px); } .t4 { transform:translate(-100px,100px); } .t5 { transform:translate(-135px,-42px); }
+
+    .comparison { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:50px; }
+    .compare { padding:35px; border-radius:25px; border:1px solid rgba(255,255,255,.08); background:rgba(8,12,20,.72); }
+    .compare.good { border-color:rgba(56,182,255,.31); background:linear-gradient(140deg,rgba(17,57,89,.5),rgba(5,9,16,.8)); box-shadow:0 28px 75px rgba(0,87,173,.13); }
+    .compare h3 { margin:0 0 24px; font-size:24px; }
+    .compare ul { list-style:none; margin:0; padding:0; display:grid; gap:14px; color:#91a3b7; }
+    .compare li { display:flex; gap:11px; }
+    .bad li::before { content:"×"; color:#617187; }
+    .good li::before { content:"✓"; color:#65dcff; }
+
+    .cta { padding:120px 0 135px; }
+    .cta-box { position:relative; overflow:hidden; text-align:center; padding:90px 30px; border:1px solid rgba(82,191,255,.27); border-radius:34px; background:linear-gradient(145deg,rgba(12,30,51,.92),rgba(5,8,14,.95)); }
+    .cta-box::before { content:""; position:absolute; width:500px; height:220px; top:-130px; left:calc(50% - 250px); background:#087dff; filter:blur(100px); opacity:.26; }
+    .cta-box h2 { margin:0 auto 19px; }
+    .cta-box p { color:#9aabba; font-size:18px; max-width:600px; margin:0 auto 31px; }
+    footer { border-top:1px solid rgba(255,255,255,.06); padding:30px 0; color:#66788e; font-size:13px; }
+    .footer-inner { display:flex; justify-content:space-between; gap:20px; }
+    .reveal { opacity:1; transform:none; animation:revealIn .75s ease both; }
+
+    @media (max-width: 900px) {
+      .hero-grid,.connect { grid-template-columns:1fr; }
+      .hero { padding-top:75px; }
+      .agent-shell { max-width:620px; }
+      .pain-grid,.feature-grid { grid-template-columns:1fr 1fr; }
+      .connect { padding:42px 28px; }
+      .flow { grid-template-columns:1fr; }
+      .step { border-right:0; border-bottom:1px solid var(--line); }
+      .step:last-child { border-bottom:0; }
+    }
+    @media (max-width: 620px) {
+      .wrap { width:min(100% - 26px,1180px); }
+      .nav-links span:not(.button) { display:none; }
+      .hero { min-height:auto; padding:66px 0 45px; }
+      h1 { font-size:50px; }
+      section { padding:78px 0; }
+      .pain-grid,.feature-grid,.comparison { grid-template-columns:1fr; }
+      .card { min-height:210px; }
+      .agent { padding:18px; min-height:485px; }
+      .connect-cloud { transform:scale(.82); margin:-25px 0; }
+      .connect { gap:18px; }
+      .footer-inner { flex-direction:column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior:auto; }
+      *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+      .reveal { opacity:1; transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid" aria-hidden="true"></div><div class="orb one" aria-hidden="true"></div><div class="orb two" aria-hidden="true"></div>
+  <nav><div class="wrap nav-inner"><div class="brand"><div class="brand-mark"><span>∿</span></div>Efe</div><div class="nav-links"><span>Qué hace</span><span>Conectores</span><span class="button small">Quiero mi agente</span></div></div></nav>
+
+  <main>
+    <header class="hero"><div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>Tu central de operaciones con IA</div>
+        <h1>Deja de coleccionar herramientas de IA.</h1>
+        <p>Memoria, voz, automatizaciones, contenido y conexiones en un solo lugar. Tú explicas el resultado. Tu agente se encarga del proceso.</p>
+        <div class="hero-actions"><span class="button">Quiero mi propio agente <span>→</span></span><span class="button secondary">Ver todo lo que puede hacer</span></div>
+        <div class="micro"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 12 4 4L19 6" stroke-width="2"/></svg>Una conversación. Un contexto. Un sistema que ejecuta.</div>
+      </div>
+      <div class="agent-shell reveal"><div class="agent">
+        <div class="agent-head"><div class="agent-id"><div class="avatar">∿</div><div><strong>Efe</strong><small>AGENTE OPERATIVO</small></div></div><div class="status">● ACTIVO</div></div>
+        <div class="chat">
+          <div class="msg user">Prepara un carrusel con las noticias de IA más relevantes, revísalo y déjame el enlace final.</div>
+          <div class="msg">Entendido. Buscaré las noticias, evitaré duplicados y prepararé el lote completo para tu aprobación.</div>
+          <div class="work"><div class="work-top"><span>Ejecutando proceso</span><span>4 / 5</span></div><div class="progress"><span></span></div><div class="chips"><span class="chip">INVESTIGACIÓN ✓</span><span class="chip">COPY ✓</span><span class="chip">IMÁGENES ✓</span><span class="chip">REVISIÓN…</span></div></div>
+          <div class="msg">He terminado. El carrusel está revisado y ordenado. Te envío una única entrega final.</div>
+        </div>
+      </div></div>
+    </div></header>
+
+    <section class="pain" id="problemas"><div class="wrap">
+      <div class="section-label">El problema no es la IA. Es la fragmentación.</div>
+      <h2>¿También estás cansado de trabajar para tus herramientas?</h2>
+      <p class="lead">Tu información repartida, cinco pestañas abiertas y asistentes que olvidan todo cuando empieza una conversación nueva.</p>
+      <div class="pain-grid">
+        <article class="card reveal"><span class="pain-number">01</span><div class="icon">↻</div><h3>Volver a explicarlo todo</h3><p>Tu IA pierde el contexto, no conoce tu negocio y cada sesión vuelve al punto de partida.</p></article>
+        <article class="card reveal"><span class="pain-number">02</span><div class="icon">⌘</div><h3>Una app para cada cosa</h3><p>Otra interfaz, otra curva de aprendizaje y otra suscripción para completar un único trabajo.</p></article>
+        <article class="card reveal"><span class="pain-number">03</span><div class="icon">…</div><h3>Respuestas que no ejecutan</h3><p>Te dan instrucciones, pero tú sigues copiando, pegando, coordinando y persiguiendo el resultado.</p></article>
+      </div>
+    </div></section>
+
+    <div class="statement reveal"><p>La IA no debería darte más trabajo. <span>Debería quitártelo.</span></p></div>
+
+    <section id="solucion"><div class="wrap">
+      <div class="section-label">Un agente. Muchas capacidades.</div>
+      <h2>Todo empieza con una conversación.</h2>
+      <p class="lead">Pídeselo hablando o escribiendo. Efe conserva el contexto, elige el camino y reúne el resultado en el mismo lugar.</p>
+      <div class="feature-grid">
+        <article class="card reveal"><div class="icon">◉</div><h3>Memoria que da continuidad</h3><p>Recuerda decisiones, preferencias y contexto útil para que no tengas que reconstruir tu negocio cada día.</p></article>
+        <article class="card reveal"><div class="icon">⌁</div><h3>Automatizaciones a tu medida</h3><p>Crea tareas recurrentes, revisa señales y ejecuta procesos con criterios y aprobaciones claras.</p></article>
+        <article class="card reveal"><div class="icon">✦</div><h3>Contenido de principio a fin</h3><p>Ideas, investigación, carruseles, imágenes, newsletters y entregables revisados en un único flujo.</p></article>
+        <article class="card reveal"><div class="icon">◇</div><h3>Webs y herramientas</h3><p>Convierte una idea en una landing, un prototipo o una aplicación lista para probar.</p></article>
+        <article class="card reveal"><div class="icon">≋</div><h3>Trabaja también por voz</h3><p>Habla con tu agente de forma natural, decide sobre la marcha y continúa después desde el chat.</p></article>
+        <article class="card reveal"><div class="icon">✓</div><h3>Tú conservas el control</h3><p>Las publicaciones, los gastos y las acciones sensibles esperan tu aprobación antes de ejecutarse.</p></article>
+      </div>
+    </div></section>
+
+    <section><div class="wrap">
+      <div class="section-label">De la petición al resultado</div><h2>No tienes que aprender a automatizar.</h2>
+      <div class="flow reveal">
+        <article class="step"><b>PASO 01</b><h3>Cuéntale qué necesitas</h3><p>Habla como hablarías con una persona de tu equipo. Sin paneles imposibles ni instrucciones técnicas.</p></article>
+        <article class="step"><b>PASO 02</b><h3>Conecta lo necesario</h3><p>Tu agente te guía para enlazar las herramientas compatibles que ya utilizas.</p></article>
+        <article class="step"><b>PASO 03</b><h3>Recibe el resultado</h3><p>El trabajo vuelve revisado y ordenado al mismo lugar en el que empezó la conversación.</p></article>
+      </div>
+    </div></section>
+
+    <section id="conectores"><div class="wrap"><div class="connect reveal">
+      <div><div class="section-label">Conecta tu ecosistema</div><h2>Las herramientas que ya usas. Mucho más fáciles de coordinar.</h2><p class="lead">Integra servicios conocidos mediante los conectores disponibles. Efe te acompaña durante la conexión y después trabaja con ellos desde una misma conversación.</p></div>
+      <div class="connect-cloud" aria-label="Representación de herramientas conectadas a Efe"><div class="ring r2"></div><div class="ring r1"></div><div class="core">Efe</div><div class="tool t1">MAIL</div><div class="tool t2">FILES</div><div class="tool t3">WEB</div><div class="tool t4">CRM</div><div class="tool t5">DATA</div></div>
+    </div></div></section>
+
+    <section><div class="wrap">
+      <div class="section-label">Menos caos. Más resultado.</div><h2>No necesitas otra herramienta aislada.</h2>
+      <div class="comparison">
+        <div class="compare bad reveal"><h3>Tu ecosistema ahora</h3><ul><li>Contexto repartido entre plataformas</li><li>Varias interfaces para terminar una tarea</li><li>Procesos manuales entre aplicaciones</li><li>Asistentes que responden, pero no continúan</li><li>Costes y aprendizaje difíciles de controlar</li></ul></div>
+        <div class="compare good reveal"><h3>Con tu propio agente</h3><ul><li>Una conversación que centraliza el trabajo</li><li>Memoria y contexto útil del negocio</li><li>Procesos completos y automatizaciones</li><li>Herramientas conectadas cuando las necesitas</li><li>Control humano sobre las decisiones importantes</li></ul></div>
+      </div>
+    </div></section>
+
+    <section class="cta" id="empezar"><div class="wrap"><div class="cta-box reveal">
+      <div class="section-label">Tu próximo miembro del equipo no necesita otra pestaña</div><h2>Una sola IA.<br>Todo tu trabajo conectado.</h2><p>Deja de adaptar tu negocio a cada herramienta. Empieza a trabajar con un agente que se adapta a ti.</p><span class="button">Quiero mi propio agente <span>→</span></span>
+    </div></div></section>
+  </main>
+
+  <footer><div class="wrap footer-inner"><span>© 2026 Chat Bot Media</span><span>La disponibilidad de conectores y funciones puede variar según el plan, los permisos y cada proveedor.</span></div></footer>
+</body>
+</html>
